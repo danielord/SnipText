@@ -112,9 +112,10 @@ final class ScreenshotOrganizerService {
 
         guard !candidates.isEmpty else {
             if notifyIfZero {
+                let folderName = (watchedPath as NSString).lastPathComponent
                 HUDToast.shared.show(
-                    title: "Sin capturas pendientes",
-                    subtitle: "No se encontraron capturas sin organizar en \((watchedPath as NSString).lastPathComponent)"
+                    title: L10n.tr("No Pending Screenshots", "Sin capturas pendientes"),
+                    subtitle: L10n.tr("No unorganized screenshots found in \(folderName)", "No se encontraron capturas sin organizar en \(folderName)")
                 )
             }
             return
@@ -135,13 +136,13 @@ final class ScreenshotOrganizerService {
 
         if organizedCount == 1 {
             HUDToast.shared.show(
-                title: "Captura organizada con OCR",
+                title: L10n.tr("Screenshot Organized with OCR", "Captura organizada con OCR"),
                 subtitle: "→ \(lastNewName)"
             )
         } else if organizedCount > 1 {
             HUDToast.shared.show(
-                title: "\(organizedCount) capturas organizadas",
-                subtitle: "Última: \(lastNewName)"
+                title: L10n.tr("\(organizedCount) Screenshots Organized", "\(organizedCount) capturas organizadas"),
+                subtitle: L10n.tr("Latest: \(lastNewName)", "Última: \(lastNewName)")
             )
         }
     }
@@ -264,20 +265,20 @@ final class ScreenshotOrganizerService {
         ]
 
         if receiptTerms.contains(where: { fullTextLower.contains($0) }) {
-            folderCategory = "Recibos_y_Pagos"
-            shortPrefix = "Recibo"
+            folderCategory = L10n.tr("Receipts_and_Payments", "Recibos_y_Pagos")
+            shortPrefix = L10n.tr("Receipt", "Recibo")
         } else if codeTerms.contains(where: { fullTextLower.contains($0) }) {
-            folderCategory = "Codigo_y_Dev"
-            shortPrefix = "Codigo"
+            folderCategory = L10n.tr("Code_and_Dev", "Codigo_y_Dev")
+            shortPrefix = L10n.tr("Code", "Codigo")
         } else if chatTerms.contains(where: { fullTextLower.contains($0) }) {
-            folderCategory = "Conversaciones"
+            folderCategory = L10n.tr("Chats", "Conversaciones")
             shortPrefix = "Chat"
         } else if fullTextLower.contains("http") || fullTextLower.contains("www.") || fullTextLower.contains(".com") {
-            folderCategory = "Web_y_Enlaces"
+            folderCategory = L10n.tr("Web_and_Links", "Web_y_Enlaces")
             shortPrefix = "Web"
         } else {
             folderCategory = "General"
-            shortPrefix = "Captura"
+            shortPrefix = L10n.tr("Capture", "Captura")
         }
 
         // 2. Check known brand / entity names first for extra clarity (e.g. "Oxxo", "BBVA", "GitHub")

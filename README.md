@@ -63,7 +63,7 @@ Unlike paid, closed-source alternatives (like TextSniper):
 
 ### Option B: Build from Source
 ```bash
-git clone https://github.com/YOUR_USERNAME/SnipText.git
+git clone https://github.com/danielord/SnipText.git
 cd SnipText
 ./build.sh
 open SnipText.app

@@ -41,7 +41,7 @@ final class OCRService {
             } catch {
                 DispatchQueue.main.async {
                     HUDToast.shared.show(
-                        title: "Error al iniciar captura",
+                        title: L10n.tr("Capture Failed", "Error al iniciar captura"),
                         subtitle: error.localizedDescription,
                         isWarning: true
                     )
@@ -66,8 +66,8 @@ final class OCRService {
             DispatchQueue.main.async {
                 guard let result = result, !result.text.isEmpty else {
                     HUDToast.shared.show(
-                        title: "No se detectó texto",
-                        subtitle: "Intenta seleccionar un área más clara o verifica permisos de pantalla",
+                        title: L10n.tr("No Text Detected", "No se detectó texto"),
+                        subtitle: L10n.tr("Try selecting a clearer area or check Screen Recording permissions", "Intenta seleccionar un área más clara o verifica permisos de pantalla"),
                         isWarning: true
                     )
                     completion(nil)
@@ -81,7 +81,9 @@ final class OCRService {
                 self?.copyToClipboard(text: finalText)
                 AppSettings.shared.addHistoryItem(text: finalText, isBarcode: result.isBarcode)
 
-                let title = result.isBarcode ? "Código QR / Barras copiado" : "Texto copiado al portapapeles"
+                let title = result.isBarcode
+                    ? L10n.tr("QR / Barcode Copied", "Código QR / Barras copiado")
+                    : L10n.tr("Text Copied to Clipboard", "Texto copiado al portapapeles")
                 HUDToast.shared.show(title: title, subtitle: finalText)
                 completion(OCRResult(text: finalText, isBarcode: result.isBarcode))
             }

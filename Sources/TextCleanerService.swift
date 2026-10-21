@@ -82,7 +82,7 @@ final class TextCleanerService {
 
             if cleaned != original {
                 HUDToast.shared.show(
-                    title: "URL / Texto limpiado automáticamente",
+                    title: L10n.tr("URL / Text Auto-Cleaned", "URL / Texto limpiado automáticamente"),
                     subtitle: cleaned
                 )
             }
@@ -156,8 +156,8 @@ final class TextCleanerService {
         let pasteboard = NSPasteboard.general
         guard let current = pasteboard.string(forType: .string), !current.isEmpty else {
             HUDToast.shared.show(
-                title: "Portapapeles vacío",
-                subtitle: "No hay texto en el portapapeles para limpiar",
+                title: L10n.tr("Clipboard is Empty", "Portapapeles vacío"),
+                subtitle: L10n.tr("No text found in clipboard to clean", "No hay texto en el portapapeles para limpiar"),
                 isWarning: true
             )
             return
@@ -170,7 +170,9 @@ final class TextCleanerService {
         AppSettings.shared.addHistoryItem(text: cleaned, isBarcode: false)
 
         HUDToast.shared.show(
-            title: collapseSpaces ? "Espacios y formato limpiados" : "Texto plano y URLs limpiadas",
+            title: collapseSpaces
+                ? L10n.tr("Extra Spaces & Formatting Cleaned", "Espacios y formato limpiados")
+                : L10n.tr("Plain Text & URLs Cleaned", "Texto plano y URLs limpiadas"),
             subtitle: cleaned
         )
     }
@@ -179,8 +181,8 @@ final class TextCleanerService {
         let pasteboard = NSPasteboard.general
         guard let current = pasteboard.string(forType: .string), !current.isEmpty else {
             HUDToast.shared.show(
-                title: "Portapapeles vacío",
-                subtitle: "Copia algún texto primero para transformarlo",
+                title: L10n.tr("Clipboard is Empty", "Portapapeles vacío"),
+                subtitle: L10n.tr("Copy some text first to transform it", "Copia algún texto primero para transformarlo"),
                 isWarning: true
             )
             return
@@ -191,16 +193,16 @@ final class TextCleanerService {
         switch style {
         case .uppercase:
             transformed = current.uppercased(with: Locale.current)
-            label = "Convertido a MAYÚSCULAS"
+            label = L10n.tr("Converted to UPPERCASE", "Convertido a MAYÚSCULAS")
         case .lowercase:
             transformed = current.lowercased(with: Locale.current)
-            label = "Convertido a minúsculas"
+            label = L10n.tr("Converted to lowercase", "Convertido a minúsculas")
         case .titleCase:
             transformed = current.localizedCapitalized
-            label = "Convertido a Tipo Título"
+            label = L10n.tr("Converted to Title Case", "Convertido a Tipo Título")
         case .sentenceCase:
             transformed = toSentenceCase(current)
-            label = "Convertido a Tipo Oración"
+            label = L10n.tr("Converted to Sentence case", "Convertido a Tipo Oración")
         }
 
         pasteboard.clearContents()

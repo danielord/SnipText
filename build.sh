@@ -16,6 +16,7 @@ mkdir -p "${MACOS_DIR}" "${RESOURCES_DIR}"
 cp Info.plist "${CONTENTS_DIR}/Info.plist"
 
 SOURCES=(
+    Sources/Localization.swift
     Sources/Models.swift
     Sources/HotKeyManager.swift
     Sources/HUDToast.swift

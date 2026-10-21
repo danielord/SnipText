@@ -24,12 +24,12 @@ struct HistoryItem: Codable, Identifiable {
         if combined.count > 48 {
             return String(combined.prefix(48)) + "…"
         }
-        return combined.isEmpty ? "(Vacío)" : combined
+        return combined.isEmpty ? L10n.tr("(Empty)", "(Vacío)") : combined
     }
 
     var relativeTimeString: String {
         let formatter = RelativeDateTimeFormatter()
-        formatter.locale = Locale(identifier: "es_ES")
+        formatter.locale = Locale(identifier: L10n.isSpanish ? "es_ES" : "en_US")
         formatter.unitsStyle = .abbreviated
         return formatter.localizedString(for: date, relativeTo: Date())
     }
@@ -52,7 +52,7 @@ struct HotKeyCombo: Codable, Equatable {
         HotKeyCombo(keyCode: UInt32(kVK_ANSI_X), carbonModifiers: UInt32(cmdKey | shiftKey), displayString: "⌘⇧X"),
         HotKeyCombo(keyCode: UInt32(kVK_ANSI_S), carbonModifiers: UInt32(cmdKey | shiftKey), displayString: "⌘⇧S"),
         HotKeyCombo(keyCode: UInt32(kVK_ANSI_T), carbonModifiers: UInt32(optionKey | cmdKey), displayString: "⌥⌘T"),
-        HotKeyCombo(keyCode: UInt32(kVK_Space), carbonModifiers: UInt32(controlKey | optionKey), displayString: "⌃⌥Espacio")
+        HotKeyCombo(keyCode: UInt32(kVK_Space), carbonModifiers: UInt32(controlKey | optionKey), displayString: "⌃⌥Space")
     ]
 
     var nsEventModifierFlags: NSEvent.ModifierFlags {
@@ -114,6 +114,7 @@ final class AppSettings {
     private let defaults = UserDefaults.standard
 
     private enum Keys {
+        static let appLanguage = "appLanguage"
         static let keepLineBreaks = "keepLineBreaks"
         static let detectBarcodes = "detectBarcodes"
         static let playSound = "playSound"
@@ -137,6 +138,7 @@ final class AppSettings {
 
     private init() {
         defaults.register(defaults: [
+            Keys.appLanguage: AppLanguage.system.rawValue,
             Keys.keepLineBreaks: true,
             Keys.detectBarcodes: true,
             Keys.playSound: true,
@@ -148,6 +150,19 @@ final class AppSettings {
             Keys.moveScreenshotsToFolder: true,
             Keys.organizeByCategorySubfolders: true
         ])
+    }
+
+    var appLanguage: AppLanguage {
+        get {
+            guard let raw = defaults.string(forKey: Keys.appLanguage),
+                  let lang = AppLanguage(rawValue: raw) else {
+                return .system
+            }
+            return lang
+        }
+        set {
+            defaults.set(newValue.rawValue, forKey: Keys.appLanguage)
+        }
     }
 
     var keepLineBreaks: Bool {
@@ -209,7 +224,6 @@ final class AppSettings {
             if let saved = defaults.string(forKey: Keys.watchedScreenshotsPath), !saved.isEmpty {
                 return (saved as NSString).expandingTildeInPath
             }
-            // Check macOS system screenshot location preference if custom set
             if let sysDomain = UserDefaults.standard.persistentDomain(forName: "com.apple.screencapture"),
                let loc = sysDomain["location"] as? String, !loc.isEmpty {
                 let expanded = (loc as NSString).expandingTildeInPath
@@ -229,9 +243,10 @@ final class AppSettings {
             if let saved = defaults.string(forKey: Keys.organizedScreenshotsPath), !saved.isEmpty {
                 return (saved as NSString).expandingTildeInPath
             }
+            let folderName = L10n.tr("SnipText Screenshots", "SnipText Capturas")
             return FileManager.default.homeDirectoryForCurrentUser
                 .appendingPathComponent("Pictures")
-                .appendingPathComponent("SnipText Capturas").path
+                .appendingPathComponent(folderName).path
         }
         set {
             defaults.set(newValue, forKey: Keys.organizedScreenshotsPath)

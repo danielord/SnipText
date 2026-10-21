@@ -27,7 +27,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             } else {
                 button.title = "SnipText"
             }
-            button.toolTip = "SnipText — Capturar texto en pantalla (\(AppSettings.shared.hotKey.displayString))"
         }
 
         statusMenu.delegate = self
@@ -50,11 +49,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         statusMenu.removeAllItems()
 
         let currentHotKey = AppSettings.shared.hotKey
-        statusItem.button?.toolTip = "SnipText — Capturar texto (\(currentHotKey.displayString))"
+        statusItem.button?.toolTip = L10n.tr(
+            "SnipText — Capture Screen Text (\(currentHotKey.displayString))",
+            "SnipText — Capturar texto (\(currentHotKey.displayString))"
+        )
 
         // 1. Primary Capture Action
         let captureItem = NSMenuItem(
-            title: "Capturar Texto en Pantalla",
+            title: L10n.tr("Capture Screen Text", "Capturar Texto en Pantalla"),
             action: #selector(startCaptureAction),
             keyEquivalent: currentHotKey.keyEquivalentCharacter
         )
@@ -70,7 +72,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         // 2. Latest Copied Text Preview & History
         let history = AppSettings.shared.history
         if let latest = history.first {
-            let headerItem = NSMenuItem(title: "Última captura (clic para copiar):", action: nil, keyEquivalent: "")
+            let headerItem = NSMenuItem(
+                title: L10n.tr("Latest capture (click to copy):", "Última captura (clic para copiar):"),
+                action: nil,
+                keyEquivalent: ""
+            )
             headerItem.isEnabled = false
             statusMenu.addItem(headerItem)
 
@@ -91,7 +97,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             statusMenu.addItem(previewItem)
 
             // History Submenu
-            let historySubmenu = NSMenu(title: "Historial Reciente")
+            let historySubmenu = NSMenu(title: L10n.tr("Recent History", "Historial Reciente"))
             for (index, item) in history.enumerated() {
                 let menuTitle = "\(index + 1). \(item.previewTitle)  (\(item.relativeTimeString))"
                 let hItem = NSMenuItem(title: menuTitle, action: #selector(copyHistoryItem(_:)), keyEquivalent: "")
@@ -107,18 +113,30 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
                 historySubmenu.addItem(hItem)
             }
             historySubmenu.addItem(.separator())
-            let clearItem = NSMenuItem(title: "Borrar Historial", action: #selector(clearHistoryAction), keyEquivalent: "")
+            let clearItem = NSMenuItem(
+                title: L10n.tr("Clear History", "Borrar Historial"),
+                action: #selector(clearHistoryAction),
+                keyEquivalent: ""
+            )
             clearItem.target = self
             historySubmenu.addItem(clearItem)
 
-            let historyRoot = NSMenuItem(title: "Historial Reciente (\(history.count))", action: nil, keyEquivalent: "")
+            let historyRoot = NSMenuItem(
+                title: L10n.tr("Recent History (\(history.count))", "Historial Reciente (\(history.count))"),
+                action: nil,
+                keyEquivalent: ""
+            )
             if let clockIcon = NSImage(systemSymbolName: "clock.arrow.circlepath", accessibilityDescription: nil) {
                 historyRoot.image = clockIcon
             }
             historyRoot.submenu = historySubmenu
             statusMenu.addItem(historyRoot)
         } else {
-            let emptyItem = NSMenuItem(title: "Sin capturas recientes", action: nil, keyEquivalent: "")
+            let emptyItem = NSMenuItem(
+                title: L10n.tr("No recent captures", "Sin capturas recientes"),
+                action: nil,
+                keyEquivalent: ""
+            )
             emptyItem.isEnabled = false
             statusMenu.addItem(emptyItem)
         }
@@ -126,10 +144,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         statusMenu.addItem(.separator())
 
         // 3. MODULE 1: Limpiador de Texto y URLs (Paste Plain Text Pro)
-        let cleanerSubmenu = NSMenu(title: "Limpiador de Texto y URLs")
+        let cleanerSubmenu = NSMenu(title: L10n.tr("Text & URL Cleaner", "Limpiador de Texto y URLs"))
 
         let autoCleanItem = NSMenuItem(
-            title: "Módulo activo: Limpiar automáticamente al copiar (⌘C)",
+            title: L10n.tr("Active Module: Auto-clean on copy (⌘C)", "Módulo activo: Limpiar automáticamente al copiar (⌘C)"),
             action: #selector(toggleAutoCleanClipboard),
             keyEquivalent: ""
         )
@@ -138,7 +156,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         cleanerSubmenu.addItem(autoCleanItem)
 
         let stripTrackersItem = NSMenuItem(
-            title: "Quitar rastreadores de URLs (utm_, fbclid, gclid, si…)",
+            title: L10n.tr("Remove URL trackers (utm_, fbclid, gclid, si…)", "Quitar rastreadores de URLs (utm_, fbclid, gclid, si…)"),
             action: #selector(toggleStripURLTrackers),
             keyEquivalent: ""
         )
@@ -149,7 +167,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         cleanerSubmenu.addItem(.separator())
 
         let cleanNowItem = NSMenuItem(
-            title: "⚡ Limpiar portapapeles actual ahora (Texto plano + URL)",
+            title: L10n.tr("⚡ Clean current clipboard now (Plain Text + URL)", "⚡ Limpiar portapapeles actual ahora (Texto plano + URL)"),
             action: #selector(cleanClipboardNowAction),
             keyEquivalent: ""
         )
@@ -157,7 +175,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         cleanerSubmenu.addItem(cleanNowItem)
 
         let collapseSpacesItem = NSMenuItem(
-            title: "⚡ Quitar espacios dobles y líneas vacías",
+            title: L10n.tr("⚡ Remove extra spaces & empty lines", "⚡ Quitar espacios dobles y líneas vacías"),
             action: #selector(collapseSpacesNowAction),
             keyEquivalent: ""
         )
@@ -166,24 +184,46 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
         cleanerSubmenu.addItem(.separator())
 
-        let upperItem = NSMenuItem(title: "Transformar a MAYÚSCULAS", action: #selector(transformUpperAction), keyEquivalent: "")
+        let upperItem = NSMenuItem(
+            title: L10n.tr("Transform to UPPERCASE", "Transformar a MAYÚSCULAS"),
+            action: #selector(transformUpperAction),
+            keyEquivalent: ""
+        )
         upperItem.target = self
         cleanerSubmenu.addItem(upperItem)
 
-        let lowerItem = NSMenuItem(title: "Transformar a minúsculas", action: #selector(transformLowerAction), keyEquivalent: "")
+        let lowerItem = NSMenuItem(
+            title: L10n.tr("Transform to lowercase", "Transformar a minúsculas"),
+            action: #selector(transformLowerAction),
+            keyEquivalent: ""
+        )
         lowerItem.target = self
         cleanerSubmenu.addItem(lowerItem)
 
-        let titleCaseItem = NSMenuItem(title: "Transformar a Tipo Título", action: #selector(transformTitleAction), keyEquivalent: "")
+        let titleCaseItem = NSMenuItem(
+            title: L10n.tr("Transform to Title Case", "Transformar a Tipo Título"),
+            action: #selector(transformTitleAction),
+            keyEquivalent: ""
+        )
         titleCaseItem.target = self
         cleanerSubmenu.addItem(titleCaseItem)
 
-        let sentenceCaseItem = NSMenuItem(title: "Transformar a Tipo Oración", action: #selector(transformSentenceAction), keyEquivalent: "")
+        let sentenceCaseItem = NSMenuItem(
+            title: L10n.tr("Transform to Sentence case", "Transformar a Tipo Oración"),
+            action: #selector(transformSentenceAction),
+            keyEquivalent: ""
+        )
         sentenceCaseItem.target = self
         cleanerSubmenu.addItem(sentenceCaseItem)
 
-        let cleanerStatus = AppSettings.shared.autoCleanClipboard ? "Activo" : "Manual"
-        let cleanerRoot = NSMenuItem(title: "Limpiador de Texto y URLs (\(cleanerStatus))", action: nil, keyEquivalent: "")
+        let cleanerStatus = AppSettings.shared.autoCleanClipboard
+            ? L10n.tr("Active", "Activo")
+            : L10n.tr("Manual", "Manual")
+        let cleanerRoot = NSMenuItem(
+            title: L10n.tr("Text & URL Cleaner (\(cleanerStatus))", "Limpiador de Texto y URLs (\(cleanerStatus))"),
+            action: nil,
+            keyEquivalent: ""
+        )
         if let wandIcon = NSImage(systemSymbolName: "wand.and.stars", accessibilityDescription: nil) {
             cleanerRoot.image = wandIcon
         }
@@ -191,10 +231,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         statusMenu.addItem(cleanerRoot)
 
         // 4. MODULE 2: Organizador Automatizado de Capturas de Pantalla
-        let organizerSubmenu = NSMenu(title: "Organizador de Capturas")
+        let organizerSubmenu = NSMenu(title: L10n.tr("Screenshot Organizer", "Organizador de Capturas"))
 
         let autoOrgItem = NSMenuItem(
-            title: "Módulo activo: Auto-renombrar y organizar nuevas capturas",
+            title: L10n.tr("Active Module: Auto-rename & organize new screenshots", "Módulo activo: Auto-renombrar y organizar nuevas capturas"),
             action: #selector(toggleAutoOrganizeScreenshots),
             keyEquivalent: ""
         )
@@ -203,7 +243,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         organizerSubmenu.addItem(autoOrgItem)
 
         let organizeNowItem = NSMenuItem(
-            title: "⚡ Organizar capturas existentes ahora",
+            title: L10n.tr("⚡ Organize existing screenshots now", "⚡ Organizar capturas existentes ahora"),
             action: #selector(organizeExistingScreenshotsNowAction),
             keyEquivalent: ""
         )
@@ -213,7 +253,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         organizerSubmenu.addItem(.separator())
 
         let moveFolderItem = NSMenuItem(
-            title: "Mover a carpeta ~/Pictures/SnipText Capturas",
+            title: L10n.tr("Move to ~/Pictures/SnipText Screenshots", "Mover a carpeta ~/Pictures/SnipText Capturas"),
             action: #selector(toggleMoveScreenshotsToFolder),
             keyEquivalent: ""
         )
@@ -222,7 +262,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         organizerSubmenu.addItem(moveFolderItem)
 
         let categorySubfolderItem = NSMenuItem(
-            title: "Clasificar en subcarpetas (Recibos, Código, Web…)",
+            title: L10n.tr("Group into subfolders (Receipts, Code, Web…)", "Clasificar en subcarpetas (Recibos, Código, Web…)"),
             action: #selector(toggleOrganizeByCategorySubfolders),
             keyEquivalent: ""
         )
@@ -235,7 +275,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
         let watchedFolderName = (AppSettings.shared.watchedScreenshotsPath as NSString).lastPathComponent
         let chooseWatchedItem = NSMenuItem(
-            title: "Carpeta vigilada: \(watchedFolderName) (Cambiar…)",
+            title: L10n.tr("Watched folder: \(watchedFolderName) (Change…)", "Carpeta vigilada: \(watchedFolderName) (Cambiar…)"),
             action: #selector(chooseWatchedScreenshotsFolder),
             keyEquivalent: ""
         )
@@ -243,15 +283,21 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         organizerSubmenu.addItem(chooseWatchedItem)
 
         let openOrganizedItem = NSMenuItem(
-            title: "Abrir carpeta de capturas organizadas",
+            title: L10n.tr("Open organized screenshots folder", "Abrir carpeta de capturas organizadas"),
             action: #selector(openOrganizedScreenshotsFolder),
             keyEquivalent: ""
         )
         openOrganizedItem.target = self
         organizerSubmenu.addItem(openOrganizedItem)
 
-        let organizerStatus = AppSettings.shared.autoOrganizeScreenshots ? "Activo" : "Manual"
-        let organizerRoot = NSMenuItem(title: "Organizador de Capturas (\(organizerStatus))", action: nil, keyEquivalent: "")
+        let organizerStatus = AppSettings.shared.autoOrganizeScreenshots
+            ? L10n.tr("Active", "Activo")
+            : L10n.tr("Manual", "Manual")
+        let organizerRoot = NSMenuItem(
+            title: L10n.tr("Screenshot Organizer (\(organizerStatus))", "Organizador de Capturas (\(organizerStatus))"),
+            action: nil,
+            keyEquivalent: ""
+        )
         if let folderIcon = NSImage(systemSymbolName: "folder.badge.gearshape", accessibilityDescription: nil) {
             organizerRoot.image = folderIcon
         }
@@ -262,7 +308,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
         // 5. OCR & Clipboard Toggles
         let lineBreaksItem = NSMenuItem(
-            title: "Mantener saltos de línea en OCR",
+            title: L10n.tr("Keep line breaks in OCR", "Mantener saltos de línea en OCR"),
             action: #selector(toggleKeepLineBreaks),
             keyEquivalent: ""
         )
@@ -271,7 +317,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         statusMenu.addItem(lineBreaksItem)
 
         let barcodeItem = NSMenuItem(
-            title: "Leer códigos QR y de barras",
+            title: L10n.tr("Read QR & Barcodes", "Leer códigos QR y de barras"),
             action: #selector(toggleDetectBarcodes),
             keyEquivalent: ""
         )
@@ -280,7 +326,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         statusMenu.addItem(barcodeItem)
 
         let additiveItem = NSMenuItem(
-            title: "Acumular texto en portapapeles",
+            title: L10n.tr("Append captures to clipboard", "Acumular texto en portapapeles"),
             action: #selector(toggleAdditiveClipboard),
             keyEquivalent: ""
         )
@@ -290,11 +336,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
         statusMenu.addItem(.separator())
 
-        // 6. Feedback & Shortcut Configuration Submenu
-        let prefsSubmenu = NSMenu(title: "Preferencias y Atajo")
+        // 6. Feedback, Language & Shortcut Configuration Submenu
+        let prefsSubmenu = NSMenu(title: L10n.tr("Preferences & Shortcut", "Preferencias y Atajo"))
 
         let soundItem = NSMenuItem(
-            title: "Sonido sutil al copiar",
+            title: L10n.tr("Subtle sound on copy", "Sonido sutil al copiar"),
             action: #selector(togglePlaySound),
             keyEquivalent: ""
         )
@@ -303,7 +349,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         prefsSubmenu.addItem(soundItem)
 
         let hudItem = NSMenuItem(
-            title: "Mostrar aviso flotante (HUD)",
+            title: L10n.tr("Show floating HUD banner", "Mostrar aviso flotante (HUD)"),
             action: #selector(toggleShowHUD),
             keyEquivalent: ""
         )
@@ -312,7 +358,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         prefsSubmenu.addItem(hudItem)
 
         prefsSubmenu.addItem(.separator())
-        let shortcutHeader = NSMenuItem(title: "Atajo de Teclado Global:", action: nil, keyEquivalent: "")
+        let shortcutHeader = NSMenuItem(
+            title: L10n.tr("Global Keyboard Shortcut:", "Atajo de Teclado Global:"),
+            action: nil,
+            keyEquivalent: ""
+        )
         shortcutHeader.isEnabled = false
         prefsSubmenu.addItem(shortcutHeader)
 
@@ -328,21 +378,47 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             prefsSubmenu.addItem(presetItem)
         }
         if !HotKeyCombo.presets.contains(currentHotKey) {
-            let customCurrent = NSMenuItem(title: "  Personalizado (\(currentHotKey.displayString))", action: nil, keyEquivalent: "")
+            let customCurrent = NSMenuItem(
+                title: L10n.tr("  Custom (\(currentHotKey.displayString))", "  Personalizado (\(currentHotKey.displayString))"),
+                action: nil,
+                keyEquivalent: ""
+            )
             customCurrent.state = .on
             prefsSubmenu.addItem(customCurrent)
         }
-        prefsSubmenu.addItem(.separator())
         let customRecorderItem = NSMenuItem(
-            title: "Grabar atajo personalizado…",
+            title: L10n.tr("Record custom shortcut…", "Grabar atajo personalizado…"),
             action: #selector(openShortcutRecorder),
             keyEquivalent: ""
         )
         customRecorderItem.target = self
         prefsSubmenu.addItem(customRecorderItem)
 
+        prefsSubmenu.addItem(.separator())
+        let langHeader = NSMenuItem(
+            title: L10n.tr("Language / Idioma:", "Idioma / Language:"),
+            action: nil,
+            keyEquivalent: ""
+        )
+        langHeader.isEnabled = false
+        prefsSubmenu.addItem(langHeader)
+
+        let currentLang = AppSettings.shared.appLanguage
+        let langOptions: [(AppLanguage, String)] = [
+            (.system, L10n.tr("  System Default (Auto)", "  Automático (Sistema)")),
+            (.english, "  English"),
+            (.spanish, "  Español")
+        ]
+        for (lang, title) in langOptions {
+            let item = NSMenuItem(title: title, action: #selector(selectAppLanguage(_:)), keyEquivalent: "")
+            item.target = self
+            item.representedObject = lang.rawValue
+            item.state = (currentLang == lang) ? .on : .off
+            prefsSubmenu.addItem(item)
+        }
+
         let prefsRoot = NSMenuItem(
-            title: "Atajo (\(currentHotKey.displayString)) y Avisos",
+            title: L10n.tr("Shortcut (\(currentHotKey.displayString)) & Settings", "Atajo (\(currentHotKey.displayString)) y Ajustes"),
             action: nil,
             keyEquivalent: ""
         )
@@ -355,7 +431,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         if !CGPreflightScreenCaptureAccess() {
             statusMenu.addItem(.separator())
             let permItem = NSMenuItem(
-                title: "⚠️ Otorgar Permiso de Pantalla…",
+                title: L10n.tr("⚠️ Grant Screen Recording Permission…", "⚠️ Otorgar Permiso de Pantalla…"),
                 action: #selector(openScreenCaptureSettings),
                 keyEquivalent: ""
             )
@@ -366,7 +442,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         statusMenu.addItem(.separator())
 
         let aboutItem = NSMenuItem(
-            title: "Acerca de SnipText…",
+            title: L10n.tr("About SnipText…", "Acerca de SnipText…"),
             action: #selector(openAboutPanel),
             keyEquivalent: ""
         )
@@ -377,7 +453,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         statusMenu.addItem(aboutItem)
 
         let quitItem = NSMenuItem(
-            title: "Salir de SnipText",
+            title: L10n.tr("Quit SnipText", "Salir de SnipText"),
             action: #selector(NSApplication.terminate(_:)),
             keyEquivalent: "q"
         )
@@ -401,7 +477,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     @objc private func copyHistoryItem(_ sender: NSMenuItem) {
         guard let text = sender.representedObject as? String else { return }
         OCRService.shared.copyToClipboard(text: text, additive: false)
-        HUDToast.shared.show(title: "Copiado del historial", subtitle: text)
+        HUDToast.shared.show(
+            title: L10n.tr("Copied from History", "Copiado del historial"),
+            subtitle: text
+        )
     }
 
     @objc private func clearHistoryAction() {
@@ -431,8 +510,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         TextCleanerService.shared.syncMonitoringState()
         let active = AppSettings.shared.autoCleanClipboard
         HUDToast.shared.show(
-            title: active ? "Limpiador automático activado" : "Limpiador automático desactivado",
-            subtitle: active ? "Todo texto o URL copiada (⌘C) se limpiará al instante" : "Modo manual disponible desde el menú"
+            title: active
+                ? L10n.tr("Auto-Cleaner Enabled", "Limpiador automático activado")
+                : L10n.tr("Auto-Cleaner Disabled", "Limpiador automático desactivado"),
+            subtitle: active
+                ? L10n.tr("Copied text & URLs (⌘C) will be cleaned automatically", "Todo texto o URL copiada (⌘C) se limpiará al instante")
+                : L10n.tr("Manual cleaning remains available in the menu", "Modo manual disponible desde el menú")
         )
         rebuildMenu()
     }
@@ -480,8 +563,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         let active = AppSettings.shared.autoOrganizeScreenshots
         let watchedName = (AppSettings.shared.watchedScreenshotsPath as NSString).lastPathComponent
         HUDToast.shared.show(
-            title: active ? "Organizador de capturas activado" : "Organizador de capturas desactivado",
-            subtitle: active ? "Vigilando nuevas capturas en \(watchedName)" : "Modo manual disponible desde el menú"
+            title: active
+                ? L10n.tr("Screenshot Organizer Enabled", "Organizador de capturas activado")
+                : L10n.tr("Screenshot Organizer Disabled", "Organizador de capturas desactivado"),
+            subtitle: active
+                ? L10n.tr("Watching new screenshots in \(watchedName)", "Vigilando nuevas capturas en \(watchedName)")
+                : L10n.tr("Manual mode remains available in the menu", "Modo manual disponible desde el menú")
         )
         rebuildMenu()
     }
@@ -503,7 +590,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     @objc private func chooseWatchedScreenshotsFolder() {
         NSApp.activate(ignoringOtherApps: true)
         let panel = NSOpenPanel()
-        panel.title = "Seleccionar carpeta donde se guardan tus capturas de pantalla"
+        panel.title = L10n.tr("Select your screenshots folder", "Seleccionar carpeta donde se guardan tus capturas de pantalla")
         panel.canChooseFiles = false
         panel.canChooseDirectories = true
         panel.allowsMultipleSelection = false
@@ -513,7 +600,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             AppSettings.shared.watchedScreenshotsPath = url.path
             ScreenshotOrganizerService.shared.syncMonitoringState()
             HUDToast.shared.show(
-                title: "Carpeta vigilada actualizada",
+                title: L10n.tr("Watched Folder Updated", "Carpeta vigilada actualizada"),
                 subtitle: url.path
             )
             rebuildMenu()
@@ -526,7 +613,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         NSWorkspace.shared.open(URL(fileURLWithPath: path))
     }
 
-    // MARK: - Feedback & Shortcut Actions
+    // MARK: - Feedback, Language & Shortcut Actions
 
     @objc private func togglePlaySound() {
         AppSettings.shared.playSound.toggle()
@@ -538,12 +625,26 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         rebuildMenu()
     }
 
+    @objc private func selectAppLanguage(_ sender: NSMenuItem) {
+        guard let raw = sender.representedObject as? String,
+              let lang = AppLanguage(rawValue: raw) else { return }
+        AppSettings.shared.appLanguage = lang
+        rebuildMenu()
+        HUDToast.shared.show(
+            title: L10n.tr("Language Updated", "Idioma actualizado"),
+            subtitle: L10n.tr("Interface set to English", "Interfaz configurada en Español")
+        )
+    }
+
     @objc private func selectPresetHotKey(_ sender: NSMenuItem) {
         guard let combo = sender.representedObject as? HotKeyCombo else { return }
         AppSettings.shared.hotKey = combo
         HotKeyManager.shared.register(combo: combo)
         rebuildMenu()
-        HUDToast.shared.show(title: "Atajo actualizado", subtitle: "Nuevo atajo: \(combo.displayString)")
+        HUDToast.shared.show(
+            title: L10n.tr("Shortcut Updated", "Atajo actualizado"),
+            subtitle: L10n.tr("New shortcut: \(combo.displayString)", "Nuevo atajo: \(combo.displayString)")
+        )
     }
 
     @objc private func openShortcutRecorder() {
@@ -553,7 +654,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             AppSettings.shared.hotKey = newCombo
             HotKeyManager.shared.register(combo: newCombo)
             self?.rebuildMenu()
-            HUDToast.shared.show(title: "Atajo actualizado", subtitle: "Nuevo atajo: \(newCombo.displayString)")
+            HUDToast.shared.show(
+                title: L10n.tr("Shortcut Updated", "Atajo actualizado"),
+                subtitle: L10n.tr("New shortcut: \(newCombo.displayString)", "Nuevo atajo: \(newCombo.displayString)")
+            )
         }
         window.makeKeyAndOrderFront(nil)
         self.recorderWindow = window
@@ -573,14 +677,26 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         paragraph.alignment = .center
         paragraph.lineSpacing = 3
 
-        let creditsText = """
-        Herramienta nativa de OCR, lector QR, limpiador de portapapeles y organizador inteligente de capturas para macOS.
-        100% Offline • Impulsado por Apple Vision
+        let creditsText = L10n.tr(
+            """
+            Native Screen OCR, QR Scanner, Plain Text/URL Cleaner & Smart Screenshot Organizer for macOS.
+            100% Offline • Powered by Apple Vision
 
-        Arquitectura: Universal Binary (Intel x86_64 & Apple Silicon arm64)
-        Licencia: MIT License (Open Source)
-        Autor: Daniel Ordoñez
-        """
+            Architecture: Universal Binary (Intel x86_64 & Apple Silicon arm64)
+            License: MIT License (Open Source)
+            Author: Daniel Ordoñez
+            GitHub: https://github.com/danielord/SnipText
+            """,
+            """
+            Herramienta nativa de OCR, lector QR, limpiador de portapapeles y organizador inteligente de capturas para macOS.
+            100% Offline • Impulsado por Apple Vision
+
+            Arquitectura: Universal Binary (Intel x86_64 & Apple Silicon arm64)
+            Licencia: MIT License (Open Source)
+            Autor: Daniel Ordoñez
+            GitHub: https://github.com/danielord/SnipText
+            """
+        )
 
         let attributedCredits = NSAttributedString(
             string: creditsText,
@@ -594,7 +710,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         NSApp.orderFrontStandardAboutPanel(options: [
             .applicationName: "SnipText",
             .applicationVersion: "1.1.0 (Universal)",
-            .version: "Build 2",
+            .version: "Build 3",
             .credits: attributedCredits,
             NSApplication.AboutPanelOptionKey(rawValue: "Copyright"): "Copyright © 2026 Daniel Ordoñez • MIT License (Open Source)"
         ])

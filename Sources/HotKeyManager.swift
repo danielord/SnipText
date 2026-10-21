@@ -118,27 +118,27 @@ final class ShortcutRecorderWindow: NSPanel {
             backing: .buffered,
             defer: false
         )
-        self.title = "Configurar Atajo Global — SnipText"
+        self.title = L10n.tr("Configure Global Shortcut — SnipText", "Configurar Atajo Global — SnipText")
         self.isFloatingPanel = true
         self.level = .floating
         self.center()
 
         let container = NSView(frame: NSRect(x: 0, y: 0, width: 360, height: 150))
 
-        let titleField = NSTextField(labelWithString: "Presiona la nueva combinación de teclas:")
+        let titleField = NSTextField(labelWithString: L10n.tr("Press the new key combination:", "Presiona la nueva combinación de teclas:"))
         titleField.font = NSFont.systemFont(ofSize: 13, weight: .medium)
         titleField.alignment = .center
         titleField.frame = NSRect(x: 20, y: 105, width: 320, height: 22)
         container.addSubview(titleField)
 
-        label.stringValue = "Actual: \(currentCombo.displayString)"
+        label.stringValue = L10n.tr("Current: \(currentCombo.displayString)", "Actual: \(currentCombo.displayString)")
         label.font = NSFont.monospacedSystemFont(ofSize: 20, weight: .bold)
         label.alignment = .center
         label.textColor = .controlAccentColor
         label.frame = NSRect(x: 20, y: 58, width: 320, height: 34)
         container.addSubview(label)
 
-        let hintField = NSTextField(labelWithString: "Usa al menos ⌘, ⌥ o ⌃ + una tecla (Esc para cancelar)")
+        let hintField = NSTextField(labelWithString: L10n.tr("Use at least ⌘, ⌥ or ⌃ + a key (Esc to cancel)", "Usa al menos ⌘, ⌥ o ⌃ + una tecla (Esc para cancelar)"))
         hintField.font = NSFont.systemFont(ofSize: 11)
         hintField.textColor = .secondaryLabelColor
         hintField.alignment = .center
