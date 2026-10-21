@@ -365,6 +365,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
         statusMenu.addItem(.separator())
 
+        let aboutItem = NSMenuItem(
+            title: "Acerca de SnipText…",
+            action: #selector(openAboutPanel),
+            keyEquivalent: ""
+        )
+        aboutItem.target = self
+        if let infoIcon = NSImage(systemSymbolName: "info.circle", accessibilityDescription: nil) {
+            aboutItem.image = infoIcon
+        }
+        statusMenu.addItem(aboutItem)
+
         let quitItem = NSMenuItem(
             title: "Salir de SnipText",
             action: #selector(NSApplication.terminate(_:)),
@@ -553,5 +564,39 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture") {
             NSWorkspace.shared.open(url)
         }
+    }
+
+    @objc private func openAboutPanel() {
+        NSApp.activate(ignoringOtherApps: true)
+
+        let paragraph = NSMutableParagraphStyle()
+        paragraph.alignment = .center
+        paragraph.lineSpacing = 3
+
+        let creditsText = """
+        Herramienta nativa de OCR, lector QR, limpiador de portapapeles y organizador inteligente de capturas para macOS.
+        100% Offline • Impulsado por Apple Vision
+
+        Arquitectura: Universal Binary (Intel x86_64 & Apple Silicon arm64)
+        Licencia: MIT License (Open Source)
+        Autor: Daniel Ordoñez
+        """
+
+        let attributedCredits = NSAttributedString(
+            string: creditsText,
+            attributes: [
+                .font: NSFont.systemFont(ofSize: 11.5),
+                .foregroundColor: NSColor.secondaryLabelColor,
+                .paragraphStyle: paragraph
+            ]
+        )
+
+        NSApp.orderFrontStandardAboutPanel(options: [
+            .applicationName: "SnipText",
+            .applicationVersion: "1.1.0 (Universal)",
+            .version: "Build 2",
+            .credits: attributedCredits,
+            NSApplication.AboutPanelOptionKey(rawValue: "Copyright"): "Copyright © 2026 Daniel Ordoñez • MIT License (Open Source)"
+        ])
     }
 }
